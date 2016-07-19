@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Services.Models.Statistics>
+
+@{
+    ViewBag.Title = "Information Summary";
+}
+
+<h2>Information Summary</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.IPAddress)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FQDN)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CallsPerClientCount)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.IPAddress)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FQDN)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CallsPerClientCount)
+        </td>        
+    </tr>
+}
+
+</table>

@@ -1,0 +1,15 @@
+﻿
+@{
+    ViewBag.Title = "File upload";
+}
+
+<h2>Log analyzer</h2>
+
+@using (Html.BeginForm("UploadFile", "Statistics", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <label class="btn btn-default btn-file">
+        <input type="file" name="logFile">
+    </label>
+    <input type="submit" value="Upload" class="btn btn-primary" />
+}
+
