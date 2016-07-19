@@ -31,6 +31,10 @@ namespace IISLogFileParserGaraio.Controllers
         {
             if (logFile != null && logFile.ContentLength > 0)
             {
+                if (!logFile.FileName.EndsWith("log") && !logFile.FileName.EndsWith("txt"))
+                {
+                    return View("ErroneousFileFormat");
+                }
                 string filePath = SaveFile(logFile);
                 TempData["filePath"] = filePath;
                 return RedirectToAction("InformationSummary");
@@ -58,7 +62,6 @@ namespace IISLogFileParserGaraio.Controllers
 
         private string GenerateFilePath(string fileName)
         {
-
             return string.Format("{0}/{1}", Path.GetTempPath(), fileName);
         }
     }

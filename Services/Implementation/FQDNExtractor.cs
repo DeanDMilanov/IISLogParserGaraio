@@ -14,6 +14,10 @@ namespace Services.Implementation
         public Option<string> ExtractFQDN(string ipString)
         {
             Option<string> fqdn;
+            if (IsLoopBackAddress(ipString))
+            {
+                return new Option<string>("loopback address");
+            }
             try
             {
                 IPAddress ipAddress = IPAddress.Parse(ipString);
@@ -27,6 +31,11 @@ namespace Services.Implementation
                 fqdn = new Option<string>();
             }
             return fqdn;
+        }
+
+        private bool IsLoopBackAddress(string ipString)
+        {
+            return ipString == "::1" || ipString == "127.0.0.0";
         }
     }
 }

@@ -11,11 +11,11 @@ namespace Services.Implementation
 {
     public class StatisticsGenerator : IStatisticsGenerator
     {
-        private IPExtractor ipExtractor;
-        private FQDNExtractor fqdnExtractor;
+        private IIPExtractor ipExtractor;
+        private IFQDNExtractor fqdnExtractor;
         ConcurrentDictionary<string, Statistics> statistics = new ConcurrentDictionary<string, Statistics>();
 
-        public StatisticsGenerator(IPExtractor ip, FQDNExtractor fqdn)
+        public StatisticsGenerator(IIPExtractor ip, IFQDNExtractor fqdn)
         {
             ipExtractor = ip;
             fqdnExtractor = fqdn;
