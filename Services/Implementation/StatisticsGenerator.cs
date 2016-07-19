@@ -57,16 +57,7 @@ namespace Services.Implementation
                         new Statistics()
                         {
                             IPAddress = ip.Value,
-                            FQDN = fqdn.Value
-                        });
-                }
-                else
-                {
-                    statistic = new Option<Statistics>(
-                        new Statistics()
-                        {
-                            IPAddress = ip.Value,
-                            FQDN = "unknown"
+                            FQDN = fqdn.Value ?? "unknown"
                         });
                 }
             }
