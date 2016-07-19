@@ -65,7 +65,8 @@ namespace Services.Implementation
                     statistic = new Option<Statistics>(
                         new Statistics()
                         {
-                            IPAddress = ip.Value
+                            IPAddress = ip.Value,
+                            FQDN = "unknown"
                         });
                 }
             }
