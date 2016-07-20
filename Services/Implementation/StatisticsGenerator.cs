@@ -19,7 +19,7 @@ namespace Services.Implementation
         {
             ipExtractor = ip;
             fqdnExtractor = fqdn;
-        }        
+        }
 
         public IEnumerable<Statistics> GenerateStatistics(IEnumerable<string> lines)
         {
@@ -37,7 +37,25 @@ namespace Services.Implementation
                     }
                 }
             );
+            Parallel.ForEach(statistics, (entry) =>
+            {
+                LookUpFQDN(entry);
+            });
             return statistics.Values;
+        }
+
+        private void LookUpFQDN(KeyValuePair<string, Statistics> entry)
+        {
+            var fqdn = fqdnExtractor.ExtractFQDN(entry.Key);
+
+            if (fqdn.HasValue)
+            {
+                statistics.AddOrUpdate(entry.Key, entry.Value,
+                        (oldkey, oldvalue) =>
+                            oldvalue = new Statistics
+                            (oldvalue.IPAddress, fqdn.Value, oldvalue.CallsPerClientCount)
+                        );
+            }
         }
 
         private Option<Statistics> GenerateSingleStatisticEntry(string text)
@@ -46,35 +64,29 @@ namespace Services.Implementation
             var ip = ipExtractor.ExtractIPString(text);
             if (ip.HasValue)
             {
-                if (statistics.ContainsKey(ip.Value))
-                {
-                    return new Option<Statistics>(statistics[ip.Value]);
-                }
-                var fqdn = fqdnExtractor.ExtractFQDN(ip.Value);
-                if (fqdn.HasValue)
-                {
-                    statistic = new Option<Statistics>(
-                        new Statistics()
-                        {
-                            IPAddress = ip.Value,
-                            FQDN = fqdn.Value
-                        });
-                }
-                else
-                {
-                    statistic = new Option<Statistics>(
-                        new Statistics()
-                        {
-                            IPAddress = ip.Value,
-                            FQDN = "unknown"
-                        });
-                }
+                statistic = CheckIfEntryIsDuplicated(ip.Value);
             }
             else
             {
                 statistic = new Option<Statistics>();
             }
             return statistic;
+        }
+
+        private Option<Statistics> CheckIfEntryIsDuplicated(string ip)
+        {
+            if (statistics.ContainsKey(ip))
+            {
+                return new Option<Statistics>(statistics[ip]);
+            }
+            else
+            {
+                return new Option<Statistics>(new Statistics()
+                {
+                    IPAddress = ip,
+                    FQDN = "unknown"
+                });
+            }
         }
     }
 }
