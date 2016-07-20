@@ -13,7 +13,8 @@ namespace Services.Implementation
     {
         private IIPExtractor ipExtractor;
         private IFQDNExtractor fqdnExtractor;
-        ConcurrentDictionary<string, Statistics> statistics = new ConcurrentDictionary<string, Statistics>();
+        private ConcurrentDictionary<string, int> ipCalls = new ConcurrentDictionary<string, int>();
+        private ConcurrentBag<Statistics> statistics = new ConcurrentBag<Statistics>();
 
         public StatisticsGenerator(IIPExtractor ip, IFQDNExtractor fqdn)
         {
@@ -23,70 +24,27 @@ namespace Services.Implementation
 
         public IEnumerable<Statistics> GenerateStatistics(IEnumerable<string> lines)
         {
-            Parallel.ForEach(lines,
-                (line) =>
+            Parallel.ForEach(lines, (line) =>
+            {
+                var ipAddress = ipExtractor.ExtractIPString(line);
+                if (ipAddress.HasValue)
                 {
-                    var statisticData = GenerateSingleStatisticEntry(line);
-                    if (statisticData.HasValue)
-                    {
-                        statistics.AddOrUpdate(statisticData.Value.IPAddress, statisticData.Value,
-                            (oldkey, oldvalue) =>
-                                oldvalue = new Statistics
-                                (oldvalue.IPAddress, oldvalue.FQDN, oldvalue.CallsPerClientCount + 1)
-                            );
-                    }
+                    ipCalls.AddOrUpdate(ipAddress.Value, 1,
+                        (oldkey, oldvalue) => oldvalue = oldvalue + 1);
                 }
-            );
-            Parallel.ForEach(statistics, (entry) =>
-            {
-                LookUpFQDN(entry);
             });
-            return statistics.Values;
+
+            Parallel.ForEach(ipCalls, (entry) =>
+            {
+                statistics.Add(GenerateSingleStatistic(entry.Key, entry.Value));
+            });
+            return statistics;
         }
 
-        private void LookUpFQDN(KeyValuePair<string, Statistics> entry)
+        private Statistics GenerateSingleStatistic(string entry, int calls)
         {
-            var fqdn = fqdnExtractor.ExtractFQDN(entry.Key);
-
-            if (fqdn.HasValue)
-            {
-                statistics.AddOrUpdate(entry.Key, entry.Value,
-                        (oldkey, oldvalue) =>
-                            oldvalue = new Statistics
-                            (oldvalue.IPAddress, fqdn.Value, oldvalue.CallsPerClientCount)
-                        );
-            }
-        }
-
-        private Option<Statistics> GenerateSingleStatisticEntry(string text)
-        {
-            Option<Statistics> statistic;
-            var ip = ipExtractor.ExtractIPString(text);
-            if (ip.HasValue)
-            {
-                statistic = CheckIfEntryIsDuplicated(ip.Value);
-            }
-            else
-            {
-                statistic = new Option<Statistics>();
-            }
-            return statistic;
-        }
-
-        private Option<Statistics> CheckIfEntryIsDuplicated(string ip)
-        {
-            if (statistics.ContainsKey(ip))
-            {
-                return new Option<Statistics>(statistics[ip]);
-            }
-            else
-            {
-                return new Option<Statistics>(new Statistics()
-                {
-                    IPAddress = ip,
-                    FQDN = "unknown"
-                });
-            }
-        }
+            var fqdn = fqdnExtractor.ExtractFQDN(entry);
+            return new Statistics(entry, fqdn.Value ?? "unknown", calls);
+        }        
     }
 }
