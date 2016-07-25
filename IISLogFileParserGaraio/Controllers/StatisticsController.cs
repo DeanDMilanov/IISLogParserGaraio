@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -46,11 +47,18 @@ namespace IISLogFileParserGaraio.Controllers
             }
         }
 
-        public ActionResult InformationSummary()
+        public async Task<ActionResult> InformationSummary()
         {
             string[] allLines = System.IO.File.ReadAllLines(TempData["filePath"].ToString());
-            var statistics = statisticsGenerator.GenerateStatistics(allLines);
+            var statistics = statisticsGenerator.GenerateFullStatistics(allLines);
             return View(statistics);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> GetMissingFQDN(IEnumerable<string> ips)
+        {
+            var result = await statisticsGenerator.GeneratePartialStatistics(ips);
+            return Json(result);
         }
 
         private string SaveFile(HttpPostedFileBase logFile)

@@ -5,6 +5,7 @@ using Services.Interfaces;
 using Services;
 using Services.Implementation;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Tests
 {
@@ -17,23 +18,23 @@ namespace Tests
 
         public StatisticsGeneratorTests()
         {
-            fqdnMock.Setup(c => c.ExtractFQDN("::1")).Returns(new Option<string>("loopback"));
-            fqdnMock.Setup(c => c.ExtractFQDN("10.10.2.18")).Returns(new Option<string>("private"));
+            fqdnMock.Setup(c => c.ExtractFQDNAsync("::1")).Returns(Task.FromResult<Option<string>>(new Option<string>("loopback")));
+            fqdnMock.Setup(c => c.ExtractFQDNAsync("10.10.2.18")).Returns(Task.FromResult<Option<string>>(new Option<string>("private")));
         }
 
         [TestMethod]
         public void GeneratesStatisticsWhenSuppliedWithDataContainingIPv4()
         {
             StatisticsGenerator generator = new StatisticsGenerator(new IPExtractor(), fqdnMock.Object);
-            var result = generator.GenerateStatistics(new[] { log1 });
-            Assert.IsTrue(result != null && result.Any());
+            var result = generator.GenerateFullStatistics(new[] { log1 });
+            Assert.IsTrue(result != null && result.Any() && result.First().CallsPerClientCount == 1);
         }
         [TestMethod]
         public void GeneratesStatisticsWhenSuppliedWithDataContainingIPv6()
         {
             StatisticsGenerator generator = new StatisticsGenerator(new IPExtractor(), fqdnMock.Object);
-            var result = generator.GenerateStatistics(new[] { log2 });
-            Assert.IsTrue(result != null && result.Any());
+            var result = generator.GenerateFullStatistics(new[] { log2 });
+            Assert.IsTrue(result != null && result.Any() && result.First().CallsPerClientCount == 1);
         }
     }
 }

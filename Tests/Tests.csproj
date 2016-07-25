@@ -58,6 +58,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="FQDNExtractorTests.cs" />
     <Compile Include="IPExtractorTests.cs" />
     <Compile Include="StatisticsGeneratorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

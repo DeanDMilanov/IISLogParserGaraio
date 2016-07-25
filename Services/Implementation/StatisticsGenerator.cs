@@ -22,7 +22,7 @@ namespace Services.Implementation
             fqdnExtractor = fqdn;
         }
 
-        public IEnumerable<Statistics> GenerateStatistics(IEnumerable<string> lines)
+        public IEnumerable<Statistics> GenerateFullStatistics(IEnumerable<string> lines)
         {
             Parallel.ForEach(lines, (line) =>
             {
@@ -34,17 +34,34 @@ namespace Services.Implementation
                 }
             });
 
-            Parallel.ForEach(ipCalls, (entry) =>
+            Parallel.ForEach(ipCalls, async (entry) =>
             {
-                statistics.Add(GenerateSingleStatistic(entry.Key, entry.Value));
+                statistics.Add(await GenerateSingleStatistic(entry.Key, entry.Value));
             });
             return statistics;
         }
 
-        private Statistics GenerateSingleStatistic(string entry, int calls)
+        private async Task<Statistics> GenerateSingleStatistic(string entry, int calls)
         {
-            var fqdn = fqdnExtractor.ExtractFQDN(entry);
+            var fqdn = await fqdnExtractor.ExtractFQDNAsync(entry);
             return new Statistics(entry, fqdn.Value ?? "unknown", calls);
-        }        
+        }
+
+        public async Task<Dictionary<string, string>> GeneratePartialStatistics(IEnumerable<string> ips)
+        {
+            var fromDb = await fqdnExtractor.ExtractSavedFQDNAsync(ips);
+            var fromDns = await fqdnExtractor.ExtractFQDNfromDNSAsync(fromDb.Unresolved);
+            await fqdnExtractor.SaveFQDNAsync(fromDns.Resolved);
+            Dictionary<string, string> result = fromDb.Resolved;
+
+            return result;
+        }
+
+        private Dictionary<string, string> CombineDictionaries(params Dictionary<string, string>[] dictionaries)
+        {
+            Dictionary<string, string> combined = new Dictionary<string, string>(dictionaries.Sum(c => c.Count));
+
+            return combined;
+        }
     }
 }

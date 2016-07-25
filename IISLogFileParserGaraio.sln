@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{9C32B861-82A9-4B86-91E5-3C97E81B17D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayer", "DataLayer\DataLayer.csproj", "{DA8D617C-174B-4849-924E-FB1D2B8A78D7}"
+EndProject
 Global
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
@@ -30,6 +32,10 @@ Global
 		{9C32B861-82A9-4B86-91E5-3C97E81B17D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C32B861-82A9-4B86-91E5-3C97E81B17D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C32B861-82A9-4B86-91E5-3C97E81B17D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA8D617C-174B-4849-924E-FB1D2B8A78D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA8D617C-174B-4849-924E-FB1D2B8A78D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA8D617C-174B-4849-924E-FB1D2B8A78D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA8D617C-174B-4849-924E-FB1D2B8A78D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

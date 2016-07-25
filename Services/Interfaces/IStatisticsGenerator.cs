@@ -9,6 +9,7 @@ namespace Services.Interfaces
 {
     public interface IStatisticsGenerator
     {
-        IEnumerable<Statistics> GenerateStatistics(IEnumerable<string> lines);
+        IEnumerable<Statistics> GenerateFullStatistics(IEnumerable<string> lines);
+        Task<Dictionary<string, string>> GeneratePartialStatistics(IEnumerable<string> ips);
     }
 }
